@@ -50,6 +50,7 @@ class SleepTrackerViewModel(
 
     private var tonight = MutableLiveData<SleepNight?>()
 
+
     init {
         initializeTonight()
     }
@@ -91,6 +92,7 @@ class SleepTrackerViewModel(
             val oldNight = tonight.value ?: return@launch
             oldNight.endTimeMilli = System.currentTimeMillis()
             update(oldNight)
+            _navigateToSleepQuality.value = oldNight
         }
     }
 
@@ -108,7 +110,7 @@ class SleepTrackerViewModel(
         }
     }
 
-    suspend fun clear() {
+    private suspend fun clear() {
         withContext(Dispatchers.IO) {
             database.clear()
         }
@@ -128,11 +130,12 @@ class SleepTrackerViewModel(
         _navigateToSleepQuality.value = null
     }
 
+
     val startButtonVisible = Transformations.map(tonight) {
-        it == null
+        null == it
     }
     val stopButtonVisible = Transformations.map(tonight) {
-        it != null
+        null != it
     }
     val clearButtonVisible = Transformations.map(nights) {
         it?.isNotEmpty()
